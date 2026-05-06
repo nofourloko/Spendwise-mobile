@@ -1,11 +1,17 @@
-import { View, Text} from 'react-native';
+import React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import StoreProvider from './src/redux/StoreProvider';
+import AppNavigator from './src/navigation/AppNavigator';
 
-function App() {
+export default function App() {
   return (
-    <View>
-      <Text>SpendWise</Text>
-    </View>
+    <StoreProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </StoreProvider>
   );
 }
-
-export default App;
