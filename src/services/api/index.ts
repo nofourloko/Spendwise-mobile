@@ -7,7 +7,7 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import {API_TAG_TYPES} from './_tags';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'http://10.0.2.2:3000/api';
 
 const rawBaseQuery = fetchBaseQuery({baseUrl: BASE_URL});
 

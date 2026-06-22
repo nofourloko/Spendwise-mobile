@@ -1,8 +1,11 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import NavigationBar from '../components/NavigationBar';
 import Dashboard from '../screens/Dashboard';
+import Expenses from '../screens/Expenses';
+import Profile from '../screens/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,10 +24,14 @@ function TabBar({state, navigation}: BottomTabBarProps) {
 
 export default function AppNavigator() {
   return (
-    <Tab.Navigator
-      tabBar={props => <TabBar {...props} />}
-      screenOptions={{headerShown: false}}>
-      <Tab.Screen name="Dashboard" component={Dashboard} />
-    </Tab.Navigator>
+    <SafeAreaView className="flex-1" edges={['top']}>
+      <Tab.Navigator
+        tabBar={props => <TabBar {...props} />}
+        screenOptions={{headerShown: false}}>
+        <Tab.Screen name="Dashboard" component={Dashboard} />
+        <Tab.Screen name="Expenses" component={Expenses} />
+        <Tab.Screen name="Profile" component={Profile} />
+      </Tab.Navigator>
+    </SafeAreaView>
   );
 }

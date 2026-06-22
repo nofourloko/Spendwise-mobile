@@ -12,7 +12,7 @@ type CenterLabelProps = {
 
 function DonutCenterLabel({ total }: CenterLabelProps) {
   return (
-    <View className="items-center">
+    <View className="items-center justify-center">
       <Text
         style={[typography.medium, { color: colors.text }]}
         className="text-sm text-center"
@@ -34,11 +34,28 @@ type Props = {
   total: number;
 };
 
-export default function ExpenseDonutChart({ categories, total }: Props) {
+export default function ExpenseDonutChart({ categories = [], total }: Props) {
   const data = categories.map(cat => ({
-    value: cat.percentage,
-    color: cat.color,
+    value: Math.max(0, cat.percentage ?? cat.amount ?? 0),
+    color: cat.color ?? colors.textMuted ?? '#ccc',
+    text: cat.name,
   }));
+
+  const hasValidData = data.some(item => item.value > 0);
+
+  if (!hasValidData) {
+    return (
+      <View className="items-center justify-center">
+        <DonutCenterLabel total={total} />
+        <Text
+          style={[typography.regular, { color: colors.textMuted }]}
+          className="text-xs mt-2"
+        >
+          Brak wydatków do wyświetlenia
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <PieChart

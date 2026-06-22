@@ -20,7 +20,7 @@ const navigationElements: NavItem[] = [
   },
   {
     key: 'Scanner',
-    title: 'Scanner',
+    title: 'New expense',
     icon: 'scan-outline',
     isCenter: true,
   },

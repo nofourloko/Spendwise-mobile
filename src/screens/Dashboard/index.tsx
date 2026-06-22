@@ -8,6 +8,7 @@ import {useGetBudgetStatusQuery} from '../../services/api/budgetLimitsApi';
 import {ExpenseCategory, ExpenseInDb} from '../../types/expense';
 import {BudgetStatus} from '../../types/budget';
 import {Transaction, TransactionCategory} from '../../types/transaction';
+import {toTransactions} from '../../utils/expansesUtlis';
 import WelcomeHeader from './WelcomeHeader';
 import BalanceBanner from './BalanceBanner';
 import ExpenseBreakdown from './ExpenseBreakdown';
@@ -43,19 +44,8 @@ function toBudgetTotals(status: BudgetStatus[]): {budget: number; expenses: numb
   );
 }
 
-function toTransactions(expenses: ExpenseInDb[]): Transaction[] {
-  return expenses.map(e => ({
-    id: e.id,
-    name: e.description || e.category_name,
-    category: e.category_name as TransactionCategory,
-    method: e.source === 'ocr' ? 'OCR' : 'Manualnie',
-    date: new Date(e.expense_date),
-    price: -e.amount,
-  }));
-}
-
 export default function Dashboard() {
-  const userId = useAppSelector(state => state.user.userId);
+  const userId = "b1000000-0000-0000-0000-000000000001";
 
   const {data: user} = useGetUserByIdQuery(userId!, {skip: !userId});
 
