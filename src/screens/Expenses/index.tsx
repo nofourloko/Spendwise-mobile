@@ -1,12 +1,13 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import ExpensesHeader from './ExpensesHeader';
+import { useAppSelector } from '../../redux/hooks';
 import { useGetUserExpensesQuery } from '../../services/api/expensesApi';
 import TransactionRow from '../../components/TransactionRow';
 import { toTransactions } from '../../utils/expansesUtlis';
 
 export default function Expenses() {
-  const userId = 'b1000000-0000-0000-0000-000000000001';
+  const userId = useAppSelector(state => state.auth.user?.id);
 
   const { data: recentExpenses = [], isLoading: expensesLoading } =
     useGetUserExpensesQuery({ userId: userId!, limit: 10 }, { skip: !userId });

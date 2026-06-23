@@ -49,3 +49,46 @@ export function validatePasswordConfirm(
   }
   return null;
 }
+
+// Accepts up to two decimal places, with `.` or `,` as the separator.
+const AMOUNT_REGEX = /^\d+([.,]\d{1,2})?$/;
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+export function validateAmount(amount: string): string | null {
+  const trimmed = amount.trim();
+  if (!trimmed) {
+    return 'Podaj kwotę';
+  }
+  if (!AMOUNT_REGEX.test(trimmed)) {
+    return 'Nieprawidłowa kwota';
+  }
+  if (Number(trimmed.replace(',', '.')) <= 0) {
+    return 'Kwota musi być większa od zera';
+  }
+  return null;
+}
+
+export function validateCategory(categoryId: string): string | null {
+  if (!categoryId) {
+    return 'Wybierz kategorię';
+  }
+  return null;
+}
+
+export function validateExpenseDate(date: string): string | null {
+  const trimmed = date.trim();
+  if (!trimmed) {
+    return 'Podaj datę';
+  }
+  if (!ISO_DATE_REGEX.test(trimmed)) {
+    return 'Data musi być w formacie RRRR-MM-DD';
+  }
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) {
+    return 'Nieprawidłowa data';
+  }
+  if (parsed.getTime() > Date.now()) {
+    return 'Data nie może być w przyszłości';
+  }
+  return null;
+}

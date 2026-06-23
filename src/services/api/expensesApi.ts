@@ -7,6 +7,7 @@ import {
   ExpenseQueryParams,
 } from '../../types/expense';
 import {ExpenseCategory} from '../../types/expense';
+import {OcrScanRequest, OcrScanResult} from '../../types/ocr';
 
 type ExpenseSummaryItem = {
   category_id: string;
@@ -60,6 +61,14 @@ export const expensesApi = baseApi.injectEndpoints({
       query: id => ({url: `expenses/${id}`, method: 'DELETE'}),
       invalidatesTags: [EXPENSE_TAGS.EXPENSES, EXPENSE_TAGS.EXPENSE_SUMMARY],
     }),
+    /**
+     * Send a receipt image to the OCR pipeline and get back a parsed draft. This
+     * does not persist anything — the user reviews the prefilled form and then
+     * calls `createExpense` — so no tags are invalidated.
+     */
+    scanReceipt: build.mutation<OcrScanResult, OcrScanRequest>({
+      query: body => ({url: 'expenses/ocr/scan', method: 'POST', body}),
+    }),
   }),
 });
 
@@ -72,4 +81,5 @@ export const {
   useCreateExpenseMutation,
   useUpdateExpenseMutation,
   useDeleteExpenseMutation,
+  useScanReceiptMutation,
 } = expensesApi;

@@ -44,8 +44,8 @@ function toBudgetTotals(status: BudgetStatus[]): {budget: number; expenses: numb
   );
 }
 
-export default function Dashboard() {
-  const userId = "b1000000-0000-0000-0000-000000000001";
+export default function Dashboard() { 
+  const userId = useAppSelector(state => state.auth.user?.id);
 
   const {data: user} = useGetUserByIdQuery(userId!, {skip: !userId});
 
