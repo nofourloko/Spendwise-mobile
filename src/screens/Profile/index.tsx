@@ -2,12 +2,15 @@ import React from 'react';
 import {ScrollView, View, ActivityIndicator} from 'react-native';
 import colors from '../../assets/colors';
 import {useGetUserByIdQuery} from '../../services/api/usersApi';
+import {useLogoutMutation} from '../../services/api/authApi';
+import Button from '../../components/Button';
 import ProfileHeader from './ProfileHeader';
 import Settings from './Settings';
 
 export default function Profile() {
   const userId = 'b1000000-0000-0000-0000-000000000001';
   const {data: user, isLoading} = useGetUserByIdQuery(userId);
+  const [logout, {isLoading: isLoggingOut}] = useLogoutMutation();
 
   if (isLoading) {
     return (
@@ -31,6 +34,7 @@ export default function Profile() {
         email={user?.email ?? ''}
       />
       <Settings />
+      <Button loading={isLoggingOut} onPress={() => logout()} />
     </ScrollView>
   );
 }
