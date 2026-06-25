@@ -1,5 +1,5 @@
 import {baseApi} from '.';
-import {EXPENSE_TAGS} from './_tags';
+import {EXPENSE_TAGS, BUDGET_TAGS} from './_tags';
 import {
   ExpenseInDb,
   CreateExpensePayload,
@@ -47,19 +47,28 @@ export const expensesApi = baseApi.injectEndpoints({
     }),
     createExpense: build.mutation<ExpenseInDb, CreateExpensePayload>({
       query: body => ({url: 'expenses', method: 'POST', body}),
-      invalidatesTags: [EXPENSE_TAGS.EXPENSES, EXPENSE_TAGS.EXPENSE_SUMMARY],
+      invalidatesTags: [
+        EXPENSE_TAGS.EXPENSES,
+        EXPENSE_TAGS.EXPENSE_SUMMARY,
+        BUDGET_TAGS.BUDGET_STATUS,
+      ],
     }),
     updateExpense: build.mutation<ExpenseInDb, {id: string; body: UpdateExpensePayload}>({
       query: ({id, body}) => ({url: `expenses/${id}`, method: 'PATCH', body}),
       invalidatesTags: (_, __, {id}) => [
         EXPENSE_TAGS.EXPENSES,
         EXPENSE_TAGS.EXPENSE_SUMMARY,
+        BUDGET_TAGS.BUDGET_STATUS,
         {type: EXPENSE_TAGS.EXPENSES, id},
       ],
     }),
     deleteExpense: build.mutation<void, string>({
       query: id => ({url: `expenses/${id}`, method: 'DELETE'}),
-      invalidatesTags: [EXPENSE_TAGS.EXPENSES, EXPENSE_TAGS.EXPENSE_SUMMARY],
+      invalidatesTags: [
+        EXPENSE_TAGS.EXPENSES,
+        EXPENSE_TAGS.EXPENSE_SUMMARY,
+        BUDGET_TAGS.BUDGET_STATUS,
+      ],
     }),
     /**
      * Send a receipt image to the OCR pipeline and get back a parsed draft. This

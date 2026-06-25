@@ -1,13 +1,13 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {ScrollView, View, ActivityIndicator} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import colors from '../../assets/colors';
 import {useAppSelector} from '../../redux/hooks';
 import {useGetUserByIdQuery} from '../../services/api/usersApi';
 import {useGetExpenseSummaryQuery, useGetUserExpensesQuery} from '../../services/api/expensesApi';
 import {useGetBudgetStatusQuery} from '../../services/api/budgetLimitsApi';
-import {ExpenseCategory, ExpenseInDb} from '../../types/expense';
+import {ExpenseCategory} from '../../types/expense';
 import {BudgetStatus} from '../../types/budget';
-import {Transaction, TransactionCategory} from '../../types/transaction';
 import {toTransactions} from '../../utils/expansesUtlis';
 import useOverallBudget from '../../hooks/useOverallBudget';
 import WelcomeHeader from './WelcomeHeader';
@@ -49,17 +49,29 @@ export default function Dashboard() {
 
   const {data: user} = useGetUserByIdQuery(userId!, {skip: !userId});
 
-  const {data: summary = [], isLoading: summaryLoading} = useGetExpenseSummaryQuery(
+  const {
+    data: summary = [],
+    isLoading: summaryLoading,
+    refetch: refetchSummary,
+  } = useGetExpenseSummaryQuery(
     {userId: userId!, month: CURRENT_MONTH, year: CURRENT_YEAR},
     {skip: !userId},
   );
 
-  const {data: budgetStatus = [], isLoading: budgetLoading} = useGetBudgetStatusQuery(
+  const {
+    data: budgetStatus = [],
+    isLoading: budgetLoading,
+    refetch: refetchBudget,
+  } = useGetBudgetStatusQuery(
     {userId: userId!, month: CURRENT_MONTH, year: CURRENT_YEAR},
     {skip: !userId},
   );
 
-  const {data: recentExpenses = [], isLoading: expensesLoading} = useGetUserExpensesQuery(
+  const {
+    data: recentExpenses = [],
+    isLoading: expensesLoading,
+    refetch: refetchRecent,
+  } = useGetUserExpensesQuery(
     {userId: userId!, limit: RECENT_LIMIT},
     {skip: !userId},
   );
@@ -67,6 +79,20 @@ export default function Dashboard() {
   // Master monthly budget, shared via Redux so edits on the Budgets screen
   // refresh the banner here live.
   const {value: budget} = useOverallBudget(userId, CURRENT_MONTH, CURRENT_YEAR);
+
+  // Re-fetch the dashboard data from the backend every time the screen regains
+  // focus, so the banner/breakdown reflect expenses and budgets changed on
+  // other tabs without waiting for cache invalidation.
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) {
+        return;
+      }
+      refetchSummary();
+      refetchBudget();
+      refetchRecent();
+    }, [userId, refetchSummary, refetchBudget, refetchRecent]),
+  );
 
   const isLoading = summaryLoading || budgetLoading || expensesLoading;
 

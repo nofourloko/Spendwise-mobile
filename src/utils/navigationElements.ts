@@ -10,28 +10,28 @@ export type NavItem = {
 const navigationElements: NavItem[] = [
   {
     key: 'Dashboard',
-    title: 'Dashboard',
+    title: 'Pulpit',
     icon: 'grid-outline',
   },
   {
     key: 'Expenses',
-    title: 'Expenses',
+    title: 'Wydatki',
     icon: 'receipt-outline',
   },
   {
     key: 'Scanner',
-    title: 'New expense',
+    title: 'Nowy wydatek',
     icon: 'scan-outline',
     isCenter: true,
   },
   {
     key: 'Budgets',
-    title: 'Budgets',
+    title: 'Budżety',
     icon: 'pie-chart-outline',
   },
   {
     key: 'Profile',
-    title: 'Profile',
+    title: 'Profil',
     icon: 'person-outline',
   },
 ];
