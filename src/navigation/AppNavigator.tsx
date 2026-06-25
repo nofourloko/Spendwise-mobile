@@ -6,6 +6,7 @@ import NavigationBar from '../components/NavigationBar';
 import Dashboard from '../screens/Dashboard';
 import Expenses from '../screens/Expenses';
 import AddExpense from '../screens/AddExpense';
+import Budgets from '../screens/Budgets';
 import Profile from '../screens/Profile';
 
 const Tab = createBottomTabNavigator();
@@ -32,6 +33,7 @@ export default function AppNavigator() {
         <Tab.Screen name="Dashboard" component={Dashboard} />
         <Tab.Screen name="Expenses" component={Expenses} />
         <Tab.Screen name="Scanner" component={AddExpense} />
+        <Tab.Screen name="Budgets" component={Budgets} />
         <Tab.Screen name="Profile" component={Profile} />
       </Tab.Navigator>
     </SafeAreaView>

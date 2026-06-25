@@ -54,6 +54,10 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>SpendWise potrzebuje dostępu do aparatu, aby skanować paragony.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SpendWise potrzebuje dostępu do galerii, aby wybrać zdjęcie paragonu.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
