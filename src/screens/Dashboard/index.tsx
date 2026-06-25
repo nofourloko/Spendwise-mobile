@@ -9,6 +9,7 @@ import {ExpenseCategory, ExpenseInDb} from '../../types/expense';
 import {BudgetStatus} from '../../types/budget';
 import {Transaction, TransactionCategory} from '../../types/transaction';
 import {toTransactions} from '../../utils/expansesUtlis';
+import useOverallBudget from '../../hooks/useOverallBudget';
 import WelcomeHeader from './WelcomeHeader';
 import BalanceBanner from './BalanceBanner';
 import ExpenseBreakdown from './ExpenseBreakdown';
@@ -22,26 +23,25 @@ const RECENT_LIMIT = 5;
 function toExpenseCategories(
   summary: {category_name: string; category_color: string; total: number}[],
 ): ExpenseCategory[] {
-  const totalAll = summary.reduce((sum, s) => sum + s.total, 0);
+  // `total` arrives from the backend as a numeric string (SQL SUM), so coerce
+  // before any arithmetic — otherwise `+` concatenates instead of adding.
+  const totalAll = summary.reduce((sum, s) => sum + (Number(s.total) || 0), 0);
   if (totalAll === 0) {return [];}
   return summary
-    .filter(s => s.total > 0)
-    .map(s => ({
-      name: s.category_name,
-      amount: s.total,
-      color: s.category_color,
-      percentage: Math.round((s.total / totalAll) * 100),
-    }));
+    .filter(s => (Number(s.total) || 0) > 0)
+    .map(s => {
+      const amount = Number(s.total) || 0;
+      return {
+        name: s.category_name,
+        amount,
+        color: s.category_color,
+        percentage: Math.round((amount / totalAll) * 100),
+      };
+    });
 }
 
-function toBudgetTotals(status: BudgetStatus[]): {budget: number; expenses: number} {
-  return status.reduce(
-    (acc, s) => ({
-      budget: acc.budget + (s.monthly_limit ?? 0),
-      expenses: acc.expenses + s.spent,
-    }),
-    {budget: 0, expenses: 0},
-  );
+function toMonthExpenses(status: BudgetStatus[]): number {
+  return status.reduce((sum, s) => sum + (Number(s.spent) || 0), 0);
 }
 
 export default function Dashboard() { 
@@ -64,9 +64,13 @@ export default function Dashboard() {
     {skip: !userId},
   );
 
+  // Master monthly budget, shared via Redux so edits on the Budgets screen
+  // refresh the banner here live.
+  const {value: budget} = useOverallBudget(userId, CURRENT_MONTH, CURRENT_YEAR);
+
   const isLoading = summaryLoading || budgetLoading || expensesLoading;
 
-  const {budget, expenses} = toBudgetTotals(budgetStatus);
+  const expenses = toMonthExpenses(budgetStatus);
   const categories = toExpenseCategories(summary);
   const transactions = toTransactions(recentExpenses);
 

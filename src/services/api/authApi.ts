@@ -29,10 +29,13 @@ async function onAuthSuccess(
   const {data} = await queryFulfilled;
   dispatch(setCredentials(data));
   dispatch(setUserId(data.user.id));
-  await tokenStorage.save({
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-  });
+  await tokenStorage.save(
+    {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    },
+    data.user.id,
+  );
 }
 
 export const authApi = baseApi.injectEndpoints({

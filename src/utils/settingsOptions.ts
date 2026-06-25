@@ -9,8 +9,6 @@ export type SettingsOption = {
 const settingsOptions: SettingsOption[] = [
   {key: 'currency', title: 'Waluta', icon: 'wallet-outline'},
   {key: 'language', title: 'Język', icon: 'globe-outline'},
-  {key: 'notifications', title: 'Powiadomienia', icon: 'notifications-outline'},
-  {key: 'export', title: 'Eksport danych', icon: 'download-outline'},
   {key: 'about', title: 'O aplikacji', icon: 'information-circle-outline'},
 ];
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Modal, View, Text, TouchableOpacity, Pressable} from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import typography from '../../assets/typography';
@@ -35,6 +35,15 @@ export default function MonthPicker({
   onClose,
 }: Props) {
   const [displayYear, setDisplayYear] = useState(year);
+
+  // The modal stays mounted across open/close (only `visible` toggles), so the
+  // browsing year would otherwise stick at whatever was last scrolled to. Reset
+  // it to the currently selected year every time the picker opens.
+  useEffect(() => {
+    if (visible) {
+      setDisplayYear(year);
+    }
+  }, [visible, year]);
 
   const handleSelect = (m: number) => {
     onSelect(m, displayYear);

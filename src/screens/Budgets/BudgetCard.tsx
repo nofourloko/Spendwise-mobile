@@ -1,39 +1,56 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, TextInput} from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import typography from '../../assets/typography';
 import colors from '../../assets/colors';
 import {formatCurrency} from '../../utils/finance';
 import {BudgetStatus} from '../../types/budget';
 import {IoniconsName} from '../../assets/icons';
+import BudgetSlider from '../../components/BudgetSlider';
 
 type Props = {
   status: BudgetStatus;
+  /** Current (optimistic) limit for this category, owned by the parent screen. */
+  limit: number;
+  /** Slider upper bound — the overall budget this category draws from. */
+  max: number;
+  step?: number;
+  onChange: (next: number) => void;
 };
 
-export default function BudgetCard({status}: Props) {
-  const limit = status.monthly_limit ?? 0;
-  const spent = status.spent;
+/**
+ * A single category budget: icon + name, an editable amount field and a slider
+ * to set this category's slice of the overall budget. The text field and slider
+ * are two inputs onto the same `limit`, so editing either updates the parent.
+ */
+export default function BudgetCard({status, limit, max, step = 50, onChange}: Props) {
+  const spent = Number(status.spent) || 0;
   const remaining = limit - spent;
-  const percent = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
   const isOverBudget = spent > limit && limit > 0;
-  const hasNoBudget = status.monthly_limit === null;
-
+  const isUnderBudget = remaining < 0;
   const barColor = isOverBudget ? colors.danger : status.category_color;
 
+  const [text, setText] = useState(String(Math.round(limit)));
+
+  // Keep the input in sync when the limit changes elsewhere (slider, re-seed).
+  useEffect(() => {
+    setText(String(Math.round(limit)));
+  }, [limit]);
+
+  const commitText = () => {
+    const parsed = Number(text.replace(/[^0-9]/g, ''));
+    onChange(Number.isFinite(parsed) ? parsed : 0);
+  };
+
   return (
-    <View
-      className="rounded-2xl p-4"
-      style={{
-        backgroundColor: isOverBudget ? '#FDECEC' : colors.cardBackground,
-      }}>
-      <View className="flex-row items-center gap-3 mb-3">
+    <View className="gap-2 py-3">
+      <View className="flex-row items-center gap-3">
         <View
-          className="w-10 h-10 rounded-full items-center justify-center"
+          className="w-11 h-11 rounded-full items-center justify-center"
           style={{backgroundColor: status.category_color}}>
           <Ionicons
             name={status.category_icon as IoniconsName}
-            size={18}
+            size={20}
             color={colors.white}
           />
         </View>
@@ -42,63 +59,52 @@ export default function BudgetCard({status}: Props) {
           className="text-sm flex-1">
           {status.category_name}
         </Text>
-        {isOverBudget && (
-          <Ionicons name="warning-outline" size={20} color={colors.danger} />
-        )}
+        <View className="flex-row items-center">
+          <TextInput
+            value={text}
+            onChangeText={t => setText(t.replace(/[^0-9]/g, ''))}
+            onEndEditing={commitText}
+            onBlur={commitText}
+            keyboardType="number-pad"
+            placeholder="0"
+            placeholderTextColor={colors.textMuted}
+            style={[
+              typography.medium,
+              {color: colors.text, minWidth: 56, padding: 0, textAlign: 'right'},
+            ]}
+            className="text-sm"
+          />
+          <Text
+            style={[typography.medium, {color: colors.text}]}
+            className="text-sm ml-1">
+            zł
+          </Text>
+        </View>
       </View>
 
-      {hasNoBudget ? (
-        <Text style={[typography.regular, {color: colors.textMuted}]} className="text-xs">
-          Brak ustawionego budżetu
+      <BudgetSlider
+        value={limit}
+        max={max}
+        step={step}
+        color={barColor}
+        onChange={onChange}
+      />
+
+      <View className="flex-row justify-between">
+        <Text
+          style={[typography.regular, {color: colors.textMuted}]}
+          className="text-xs">
+          Wydano {formatCurrency(spent)}
         </Text>
-      ) : (
-        <>
-          <View className="flex-row justify-between mb-1">
-            <Text style={[typography.regular, {color: colors.textMuted}]} className="text-xs">
-              Budżet: {formatCurrency(limit)}
-            </Text>
-            <Text style={[typography.regular, {color: colors.textMuted}]} className="text-xs">
-              {Math.round(status.usage_percent ?? 0)}%
-            </Text>
-          </View>
-
-          <View
-            className="h-2.5 rounded-full overflow-hidden mb-3"
-            style={{backgroundColor: colors.neutral}}>
-            <View
-              className="h-full rounded-full"
-              style={{
-                width: `${percent}%`,
-                backgroundColor: barColor,
-              }}
-            />
-          </View>
-
-          <View className="flex-row justify-between">
-            <View>
-              <Text style={[typography.regular, {color: colors.textMuted}]} className="text-xs">
-                Wydano
-              </Text>
-              <Text style={[typography.medium, {color: colors.text}]} className="text-sm">
-                {formatCurrency(spent)}
-              </Text>
-            </View>
-            <View className="items-end">
-              <Text style={[typography.regular, {color: colors.textMuted}]} className="text-xs">
-                Pozostało
-              </Text>
-              <Text
-                style={[
-                  typography.medium,
-                  {color: isOverBudget ? colors.danger : colors.text},
-                ]}
-                className="text-sm">
-                {formatCurrency(remaining)}
-              </Text>
-            </View>
-          </View>
-        </>
-      )}
+        <Text
+          style={[
+            typography.regular,
+            {color: isOverBudget || isUnderBudget ? colors.danger : colors.textMuted},
+          ]}
+          className="text-xs">
+          {isOverBudget ? 'Przekroczono' : `${remaining >= 0 ? 'Zostało' : 'Przekroczono'}`} {formatCurrency(remaining)}
+        </Text>
+      </View>
     </View>
   );
 }

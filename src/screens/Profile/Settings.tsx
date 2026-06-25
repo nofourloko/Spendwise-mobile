@@ -1,10 +1,11 @@
-import React from 'react';
-import {View, Text, Switch, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity} from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import typography from '../../assets/typography';
 import colors from '../../assets/colors';
 import settingsOptions from '../../utils/settingsOptions';
 import { IoniconsName } from '../../assets/icons';
+import AboutModal from './AboutModal';
 
 
 function RowLeft({icon, title}: {icon: IoniconsName; title: string}) {
@@ -30,49 +31,42 @@ function ChevronValue({label}: {label: string}) {
 }
 
 export default function Settings() {
+  const [aboutVisible, setAboutVisible] = useState(false);
+  const [exportVisible, setExportVisible] = useState(false);
+
+  const handlers: Record<string, (() => void) | undefined> = {
+    export: () => setExportVisible(true),
+    about: () => setAboutVisible(true),
+  };
+
   return (
-    <View className="rounded-2xl overflow-hidden" style={{backgroundColor: colors.cardBackground}}>
-      {settingsOptions.map((option, index) => (
-        <View key={option.key}>
-          {index > 0 && <View className="border-t border-gray-200 mx-4" />}
+    <>
+      <View className="rounded-2xl overflow-hidden" style={{backgroundColor: colors.cardBackground}}>
+        {settingsOptions.map((option, index) => {
+          const onPress = handlers[option.key];
 
-          <View className="flex-row items-center justify-between px-4 py-4">
-            <RowLeft icon={option.icon} title={option.title} />
+          return (
+            <View key={option.key}>
+              {index > 0 && <View className="border-t border-gray-200 mx-4" />}
 
-            {option.key === 'currency' && <ChevronValue label="PLN" />}
+              <TouchableOpacity
+                className="flex-row items-center justify-between px-4 py-4"
+                activeOpacity={0.7}
+                disabled={!onPress}
+                onPress={onPress}>
+                <RowLeft icon={option.icon} title={option.title} />
 
-            {option.key === 'language' && <ChevronValue label="Polski" />}
+                {option.key === 'currency' && <ChevronValue label="PLN" />}
 
-            {option.key === 'notifications' && (
-              <Switch
-                value={true}
-                thumbColor={colors.white}
-                trackColor={{false: colors.neutral, true: colors.primary}}
-              />
-            )}
+                {option.key === 'language' && <ChevronValue label="Polski" />}
 
-            {option.key === 'export' && (
-              <View className="flex-row gap-2">
-                {['CSV', 'PDF'].map(fmt => (
-                  <TouchableOpacity
-                    key={fmt}
-                    className="px-3 py-1 rounded-lg border"
-                    style={{borderColor: colors.primary}}
-                    activeOpacity={0.7}>
-                    <Text style={[typography.medium, {color: colors.primary}]} className="text-xs">
-                      {fmt}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+              </TouchableOpacity>
+            </View>
+          );
+        })}
+      </View>
 
-            {option.key === 'about' && (
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-            )}
-          </View>
-        </View>
-      ))}
-    </View>
+      <AboutModal visible={aboutVisible} onClose={() => setAboutVisible(false)} />
+    </>
   );
 }

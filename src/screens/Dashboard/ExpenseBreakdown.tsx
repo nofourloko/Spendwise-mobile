@@ -12,7 +12,12 @@ type Props = {
 };
 
 export default function ExpenseBreakdown({ categories }: Props) {
-  const total = categories.reduce((sum, cat) => sum + cat.amount, 0);
+  // Coerce defensively: category amounts can originate from string-typed
+  // backend sums, and `+` on strings would concatenate (→ NaN in formatting).
+  const total = categories.reduce(
+    (sum, cat) => sum + (Number(cat.amount) || 0),
+    0,
+  );
 
   return (
     <View
@@ -31,20 +36,6 @@ export default function ExpenseBreakdown({ categories }: Props) {
         <ExpenseLegendList categories={categories} />
       </View>
 
-      <View className="border-t border-gray-200 mt-4 pt-3">
-        <TouchableOpacity
-          className="flex-row items-center gap-1"
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[typography.medium, { color: colors.primary }]}
-            className="text-sm"
-          >
-            Zobacz wszystkie
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

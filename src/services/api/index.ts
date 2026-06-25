@@ -11,7 +11,7 @@ import {clearCredentials, setTokens} from '../slices/authSlice';
 import type {AuthTokens} from '../../types/auth';
 import type {RootState} from '../store';
 
-const BASE_URL = 'http://10.0.2.2:3000/api';
+export const BASE_URL = 'http://10.0.2.2:3000/api';
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -77,9 +77,18 @@ const baseQuery: BaseQueryFn<
     return result;
   }
 
+  // Successful responses are normally wrapped in a `{ data: <payload> }`
+  // envelope, which we unwrap here. Some endpoints (e.g. OCR) may reply without
+  // the envelope or with an empty body — tolerate both, otherwise we would hand
+  // RTK Query `{ data: undefined }`, which it rejects with "baseQuery returned
+  // an object containing neither a valid error and result".
+  const body = result.data as {data?: unknown} | null | undefined;
+  const payload =
+    body && typeof body === 'object' && 'data' in body ? body.data : body;
+
   return {
     ...result,
-    data: (result.data as {data: unknown}).data,
+    data: payload ?? null,
   };
 };
 

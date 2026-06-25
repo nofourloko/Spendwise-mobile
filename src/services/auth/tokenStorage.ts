@@ -9,31 +9,41 @@ import type {AuthTokens} from '../../types/auth';
  */
 const ACCESS_TOKEN_KEY = '@spendwise/access_token';
 const REFRESH_TOKEN_KEY = '@spendwise/refresh_token';
+const USER_ID_KEY = '@spendwise/user_id';
 
-async function save(tokens: AuthTokens): Promise<void> {
-  await Promise.all([
+/** Persisted session: the token pair plus the id needed to refetch the user. */
+export type StoredSession = AuthTokens & {userId: string | null};
+
+async function save(tokens: AuthTokens, userId?: string): Promise<void> {
+  const ops = [
     AsyncStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken),
     AsyncStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken),
-  ]);
+  ];
+  if (userId) {
+    ops.push(AsyncStorage.setItem(USER_ID_KEY, userId));
+  }
+  await Promise.all(ops);
 }
 
-async function load(): Promise<AuthTokens | null> {
-  const [accessToken, refreshToken] = await Promise.all([
+async function load(): Promise<StoredSession | null> {
+  const [accessToken, refreshToken, userId] = await Promise.all([
     AsyncStorage.getItem(ACCESS_TOKEN_KEY),
     AsyncStorage.getItem(REFRESH_TOKEN_KEY),
+    AsyncStorage.getItem(USER_ID_KEY),
   ]);
 
   if (!accessToken || !refreshToken) {
     return null;
   }
 
-  return {accessToken, refreshToken};
+  return {accessToken, refreshToken, userId};
 }
 
 async function clear(): Promise<void> {
   await Promise.all([
     AsyncStorage.removeItem(ACCESS_TOKEN_KEY),
     AsyncStorage.removeItem(REFRESH_TOKEN_KEY),
+    AsyncStorage.removeItem(USER_ID_KEY),
   ]);
 }
 

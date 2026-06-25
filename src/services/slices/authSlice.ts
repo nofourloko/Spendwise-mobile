@@ -40,6 +40,15 @@ export const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
     },
+    /**
+     * Attach the validated user profile and mark the session authenticated.
+     * Used on cold start once a restored token is confirmed to map to real user
+     * data — keeps the gate from trusting a token without an actual user.
+     */
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.status = 'authenticated';
+    },
     /** Sign out / failed bootstrap: drop everything and mark unauthenticated. */
     clearCredentials: state => {
       state.accessToken = null;
@@ -50,6 +59,11 @@ export const authSlice = createSlice({
   },
 });
 
-export const {setCredentials, restoreSession, setTokens, clearCredentials} =
-  authSlice.actions;
+export const {
+  setCredentials,
+  restoreSession,
+  setTokens,
+  setUser,
+  clearCredentials,
+} = authSlice.actions;
 export default authSlice.reducer;

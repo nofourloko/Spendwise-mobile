@@ -98,6 +98,10 @@ export default function AddExpense() {
 
     try {
       const result = await scanReceipt(capturedImage.request).unwrap();
+      if (!result) {
+        Alert.alert('Skaner paragonów', 'Paragon nie został rozpoznany. Wpisz dane ręcznie.');
+        return;
+      }
       applyOcrResult(result);
     } catch {
       Alert.alert('Skaner paragonów', 'Nie udało się odczytać paragonu. Spróbuj ponownie lub wpisz dane ręcznie.');

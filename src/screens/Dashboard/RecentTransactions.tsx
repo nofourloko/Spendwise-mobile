@@ -16,11 +16,6 @@ export default function RecentTransactions({transactions}: Props) {
         <Text style={[typography.medium, {color: colors.text}]} className="text-sm">
           Ostatnie transakcje
         </Text>
-        <TouchableOpacity activeOpacity={0.7}>
-          <Text style={[typography.medium, {color: colors.primary}]} className="text-sm">
-            Zobacz wszystkie
-          </Text>
-        </TouchableOpacity>
       </View>
 
       {transactions.map((item, index) => (
